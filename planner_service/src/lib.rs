@@ -75,6 +75,28 @@ impl<T: PlannerRepository> PlannerService<T> {
 
         Ok(classes)
     }
+
+    pub async fn generate_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
+        let classes = self.obtain_classes(user_id).await?;
+
+        let valid_weeks = Vec::new();
+
+        for class in classes {
+            let current_week = Week::new();
+
+            for schedule in class.schedules {
+                let result = current_week.insert_schedule(&schedule, class.class_name.as_str());
+
+                if let None = result {
+                    continue;
+                }
+            }
+
+            valid_weeks.push(current_week);
+        }
+    }
+
+    pub fn generate_plans_recursive()
 } 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
