@@ -13,4 +13,5 @@ pub trait PlannerRepository: Send {
     async fn add_class(&self, user_id: Uuid, class_name: String) -> err::Result<()>;
     async fn delete_class(&self, user_id: Uuid, class_name: String) -> err::Result<()>;
     async fn get_class(&self, user_id: Uuid, class_name: String) -> err::Result<Class>;
+    async fn get_classes(&self, user_id: Uuid) -> err::Result<Vec<Class>>;
 }
