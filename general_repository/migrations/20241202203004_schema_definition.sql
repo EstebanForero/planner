@@ -1,31 +1,27 @@
 -- Add migration script here
 
--- Create planner_user table
-CREATE TABLE IF NOT EXISTS planner_user (
-    user_id TEXT PRIMARY KEY
+CREATE TABLE planner_user (
+    user_id SERIAL PRIMARY KEY
 );
 
--- Create classes table
-CREATE TABLE IF NOT EXISTS classes (
-    class_name TEXT,
-    user_id TEXT,
-    PRIMARY KEY (class_name, user_id),
-    FOREIGN KEY (user_id) REFERENCES planner_user(user_id)
+-- Create the classes table
+CREATE TABLE classes (
+    class_name VARCHAR PRIMARY KEY,
+    user_id UUID REFERENCES planner_user(user_id)
 );
 
--- Create schedule table
-CREATE TABLE IF NOT EXISTS schedule (
-    schedule_id TEXT PRIMARY KEY,
-    class_name TEXT,
-    FOREIGN KEY (class_name) REFERENCES classes(class_name)
+-- Create the schedule table
+CREATE TABLE schedule (
+    schedule_id VARCHAR PRIMARY KEY,
+    class_name VARCHAR REFERENCES classes(class_name)
 );
 
--- Create block table
-CREATE TABLE IF NOT EXISTS block (
-    block_id TEXT PRIMARY KEY,
-    start_hour INTEGER,
-    finish_hour INTEGER,
-    day TEXT,
-    schedule_id TEXT,
-    FOREIGN KEY (schedule_id) REFERENCES schedule(schedule_id)
+-- Create the block table with an INTEGER primary key
+CREATE TABLE block (
+    block_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    start_hour INT,
+    finish_hour INT,
+    day VARCHAR,
+    schedule_id TEXT REFERENCES schedule(schedule_id)
 );
+

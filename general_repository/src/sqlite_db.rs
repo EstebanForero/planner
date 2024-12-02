@@ -30,7 +30,9 @@ impl SqlitePlannerRepository {
 //        class_name: String, 
 //        schedule: Schedule
 //    ) -> Result<()> {
-//        let schedule_id = Uuid::new_v4();
+//        let schedule_id = Uuid::new_v4().to_string();
+//
+//        let user_id = user_id.to_string();
 //
 //        let mut tx = self.pool.begin().await?;
 //
@@ -45,7 +47,7 @@ impl SqlitePlannerRepository {
 //        for block in schedule.blocks {
 //            query!(
 //                "INSERT INTO block (block_id, schedule_id, start_hour, finish_hour, day) VALUES (?, ?, ?, ?, ?)",
-//                Uuid::new_v4(),
+//                Uuid::new_v4().to_string(),
 //                schedule_id,
 //                block.start_hour as i64,
 //                block.finish_hour as i64,
@@ -175,5 +177,9 @@ impl SqlitePlannerRepository {
 //            class_name,
 //            schedules
 //        })
+//    }
+//
+//    async fn get_classes(&self,user_id:Uuid) -> err::Result<Vec<Class>> {
+//        todo!()
 //    }
 //}
