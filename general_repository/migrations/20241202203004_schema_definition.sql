@@ -1,19 +1,20 @@
--- Add migration script here
-
+-- Create the planner_user table
 CREATE TABLE planner_user (
-    user_id SERIAL PRIMARY KEY
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT
 );
 
--- Create the classes table
+-- Create the classes table with an INTEGER primary key
 CREATE TABLE classes (
-    class_name VARCHAR PRIMARY KEY,
-    user_id UUID REFERENCES planner_user(user_id)
+    class_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_name VARCHAR NOT NULL,
+    user_id INTEGER REFERENCES planner_user(user_id)
 );
 
--- Create the schedule table
+-- Create the schedule table with an INTEGER primary key
 CREATE TABLE schedule (
-    schedule_id VARCHAR PRIMARY KEY,
-    class_name VARCHAR REFERENCES classes(class_name)
+    schedule_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id INTEGER REFERENCES classes(class_id),
+    schedule_name VARCHAR NOT NULL
 );
 
 -- Create the block table with an INTEGER primary key
@@ -22,6 +23,6 @@ CREATE TABLE block (
     start_hour INT,
     finish_hour INT,
     day VARCHAR,
-    schedule_id TEXT REFERENCES schedule(schedule_id)
+    schedule_id INTEGER REFERENCES schedule(schedule_id)
 );
 
