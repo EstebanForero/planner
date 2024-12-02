@@ -180,4 +180,14 @@ impl PlannerRepository for SqlitePlannerRepository {
 
         Ok(blocks)
     }
+
+    async fn add_user(&self) -> err::Result<i32> {
+        let result = sqlx::query!(
+        "INSERT INTO planner_user DEFAULT VALUES; SELECT last_insert_rowid() as user_id;"
+    )
+            .fetch_one(&self.pool)
+        .await?;
+
+        Ok(result.user_id as i32)
+    }
 }
