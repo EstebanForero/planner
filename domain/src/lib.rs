@@ -9,7 +9,6 @@ pub enum Day {
     Thursday,
     Friday,
     Saturday,
-    Sunday,
 }
 
 impl From<String> for Day {
@@ -21,7 +20,6 @@ impl From<String> for Day {
             "Thursday" => Day::Thursday,
             "Friday" => Day::Friday,
             "Saturday" => Day::Saturday,
-            "Sunday" => Day::Sunday,
             _ => panic!("Invalid day string: {}", value),
         }
     }
@@ -36,7 +34,6 @@ impl ToString for Day {
             Day::Thursday => "Thursday".to_string(),
             Day::Friday => "Friday".to_string(),
             Day::Saturday => "Saturday".to_string(),
-            Day::Sunday => "Sunday".to_string(),
         }
     }
 }
@@ -50,7 +47,8 @@ pub struct Block {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Schedule {
-    pub blocks: Vec<Block>
+    pub blocks: Vec<Block>,
+    pub schedule_name: String
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

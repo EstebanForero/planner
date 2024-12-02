@@ -10,3 +10,4 @@ uuid = { version = "1.11.0", features = ["v4"] }
 sqlx = { version = "0.8.2", features = ["runtime-tokio", "sqlite"] }
 thiserror = "2.0.3"
 tracing = "0.1.41"
+serde = { version = "1.0.215", features = ["derive"] }
