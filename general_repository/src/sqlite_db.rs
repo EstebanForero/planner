@@ -118,7 +118,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_schedules(&self, class_id: i32) -> Result<Vec<Schedule>> {
         let schedule_rows = sqlx::query!(
-            "SELECT schedule_id FROM schedule WHERE class_id = ?",
+            "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = ?",
             class_id
         )
         .fetch_all(&self.pool)
@@ -127,7 +127,7 @@ impl PlannerRepository for SqlitePlannerRepository {
         let mut schedules = Vec::new();
         for schedule_row in schedule_rows {
             let blocks = self.get_blocks(schedule_row.schedule_id as i32).await?;
-            schedules.push(Schedule { blocks });
+            schedules.push(Schedule { blocks, schedule_name: schedule_row.schedule_name });
         }
 
         Ok(schedules)
