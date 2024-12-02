@@ -20,4 +20,13 @@ pub enum PlannerError {
 
     #[error("get classes error")]
     GetClassesError,
+
+    #[error("add block error")]
+    AddBlockError,
+
+    #[error("delete block error")]
+    DeleteBlockError,
+
+    #[error("get blocks error")]
+    GetBlocksError,
 }

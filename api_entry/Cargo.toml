@@ -6,3 +6,10 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1.41.1", features = ["full"] }
 general_repository = { path = "../general_repository/" }
+axum = "0.7.9"
+tower-http = { version = "0.6.1", features = ["cors"] }
+planner_service = { path = "../planner_service/" }
+domain = { path = "../domain/" }
+tracing = "0.1.41"
+serde_json = "1.0.133"
+
