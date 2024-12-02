@@ -954,6 +954,7 @@ dependencies = [
  "general_repository",
  "sqlx",
  "thiserror 2.0.3",
+ "tracing",
  "uuid",
 ]
 
