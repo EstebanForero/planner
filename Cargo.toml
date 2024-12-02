@@ -1,5 +1,5 @@
 
 [workspace]
 resolver = "2"
-members = ["api_entry", "general_repository", "planner_service"]
+members = ["api_entry", "domain", "general_repository", "planner_service"]
 
