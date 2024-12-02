@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+general_repository = { path = "../general_repository/" }
+domain = { path = "../domain/" }
+uuid = { version = "1.11.0", features = ["v4"] }
+sqlx = { version = "0.8.2", features = ["runtime-tokio", "sqlite"] }
+thiserror = "2.0.3"

@@ -1,14 +1,20 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+mod err;
+use domain::Schedule;
+use general_repository::PlannerRepository;
+use uuid::Uuid;
+
+struct PlannerService<T: PlannerRepository> {
+    repository: T,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+impl<T: PlannerRepository> PlannerService<T> {
+    pub fn new(repository: T) -> Self {
+        Self {
+            repository
+        }
     }
-}
+
+    pub fn create_schedule(user_id: Uuid, class_name: String, schedule: Schedule) -> err::Result<()> {
+        Ok(())
+    }
+} 
