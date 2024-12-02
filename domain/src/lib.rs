@@ -1,5 +1,8 @@
+use serde::{Deserialize, Serialize};
 
-enum Day {
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum Day {
     Monday,
     Tuesday,
     Wednesday,
@@ -23,17 +26,20 @@ impl ToString for Day {
     }
 }
 
-struct Block {
-    start_hour: u8,
-    finish_hour: u8,
-    day: Day
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Block {
+    pub start_hour: u8,
+    pub finish_hour: u8,
+    pub day: Day
 }
 
-struct Schedule {
-    blocks: Vec<Block>
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Schedule {
+    pub blocks: Vec<Block>
 }
 
-struct Class {
-    class_name: String,
-    schedules: Vec<Schedule>
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Class {
+    pub class_name: String,
+    pub schedules: Vec<Schedule>
 }
