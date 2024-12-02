@@ -1,5 +1,5 @@
 mod err;
-mod sqlite_db;
+pub mod sqlite_db;
 
 use domain::{Class, Schedule};
 use mockall::automock;

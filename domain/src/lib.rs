@@ -12,6 +12,21 @@ pub enum Day {
     Sunday,
 }
 
+impl From<String> for Day {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "Monday" => Day::Monday,
+            "Tuesday" => Day::Tuesday,
+            "Wednesday" => Day::Wednesday,
+            "Thursday" => Day::Thursday,
+            "Friday" => Day::Friday,
+            "Saturday" => Day::Saturday,
+            "Sunday" => Day::Sunday,
+            _ => panic!("Invalid day string: {}", value),
+        }
+    }
+}
+
 impl ToString for Day {
     fn to_string(&self) -> String {
         match self {
