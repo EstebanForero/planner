@@ -7,7 +7,7 @@ use general_repository::PlannerRepository;
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
-struct PlannerService<T: PlannerRepository> {
+pub struct PlannerService<T: PlannerRepository> {
     repository: T,
 }
 
@@ -68,7 +68,7 @@ impl<T: PlannerRepository> PlannerService<T> {
 
     pub async fn obtain_classes(&self, user_id: i32) -> err::Result<Vec<Class>> {
         let classes = self.repository.get_classes(user_id).await.map_err(|_| {
-            error!("put the error here");
+            error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
 
             PlannerError::GetClassesError
         })?;
@@ -84,6 +84,36 @@ impl<T: PlannerRepository> PlannerService<T> {
         generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
 
         Ok(valid_weeks)
+    }
+
+    pub async fn add_block(&self, schedule_id: i32, block: Block) -> err::Result<()> {
+        self.repository.add_block(schedule_id, block).await.map_err(|_| {
+            error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+
+            PlannerError::AddBlockError
+        })?;
+
+        Ok(())
+    }
+
+    pub async fn delete_block(&self, block_id: i32) -> err::Result<()> {
+        self.repository.delete_block(block_id).await.map_err(|_| {
+            error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+
+            PlannerError::DeleteBlockError
+        })?;
+
+        Ok(())
+    }
+
+    pub async fn get_blocks(&self, schedule_id: i32) -> err::Result<Vec<Block>> {
+        let blocks = self.repository.get_blocks(schedule_id).await.map_err(|_| {
+            error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+
+            PlannerError::GetBlocksError
+        })?;
+
+        Ok(blocks)
     }
 } 
 

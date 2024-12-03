@@ -46,6 +46,12 @@ pub struct Block {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CreateBlock {
+    pub block: Block,
+    pub schedule_id: i32
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Schedule {
     pub blocks: Vec<Block>,
     pub schedule_name: String
@@ -56,4 +62,22 @@ pub struct Class {
     pub class_id: i32,
     pub class_name: String,
     pub schedules: Vec<Schedule>
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CreateSchedule {
+    pub class_id: i32,
+    pub schedule_name: String
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CreateClass {
+    pub user_id: i32,
+    pub class_name: String
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DeleteClass {
+    pub user_id: i32,
+    pub class_id: i32
 }

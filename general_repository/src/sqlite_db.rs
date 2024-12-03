@@ -5,6 +5,7 @@ use domain::{Day, Block};
 use super::{Schedule, Class};
 use crate::{err::{self, RepositoryError, Result}, PlannerRepository};
 
+#[derive(Clone)]
 pub struct SqlitePlannerRepository {
     pool: SqlitePool,
 }
