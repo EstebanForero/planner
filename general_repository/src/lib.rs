@@ -21,5 +21,7 @@ pub trait PlannerRepository: Send {
     async fn add_block(&self, schedule_id: i32, block: Block) -> err::Result<()>;
     async fn delete_block(&self, block_id: i32) -> err::Result<()>;
     async fn get_blocks(&self, schedule_id: i32) -> err::Result<Vec<Block>>;
+
+    async fn add_user(&self) -> err::Result<()>;
 }
 

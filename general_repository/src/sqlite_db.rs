@@ -179,4 +179,12 @@ impl PlannerRepository for SqlitePlannerRepository {
 
         Ok(blocks)
     }
+
+    async fn add_user(&self) -> err::Result<()> {
+        sqlx::query!("INSERT INTO planner_user DEFAULT VALUES")
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
 }
