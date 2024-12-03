@@ -1,5 +1,5 @@
 mod err;
-use std::collections::HashMap;
+use std::{collections::HashMap, usize};
 
 use domain::{Block, Class, Schedule};
 use err::PlannerError;
@@ -79,25 +79,33 @@ impl<T: PlannerRepository> PlannerService<T> {
     pub async fn generate_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
         let classes = self.obtain_classes(user_id).await?;
 
-        let valid_weeks = Vec::new();
+        let mut valid_weeks: Vec<Week> = Vec::new();
 
-        for class in classes {
-            let current_week = Week::new();
+        generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
 
-            for schedule in class.schedules {
-                let result = current_week.insert_schedule(&schedule, class.class_name.as_str());
+        Ok(valid_weeks)
+    }
+} 
 
-                if let None = result {
-                    continue;
-                }
-            }
-
-            valid_weeks.push(current_week);
-        }
+fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: usize, class_list: &Vec<Class>, current_week: Week) {
+    if current_class_index >= class_list.len() {
+        valid_weeks.push(current_week.clone());
+        return
     }
 
-    pub fn generate_plans_recursive()
-} 
+    let current_class = &class_list[current_class_index];
+    let current_class_schedules = &current_class.schedules;
+
+
+    for schedule in current_class_schedules {
+        let mut current_week_to_insert = current_week.clone();
+        let result = current_week_to_insert.insert_schedule(&schedule, &current_class.class_name);
+
+        if let Ok(_) = result {
+            generate_plans_recursive(valid_weeks, current_class_index + 1, class_list, current_week_to_insert)
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Week {
@@ -109,6 +117,7 @@ pub struct Week {
     saturday: HashMap<u8, HourInfo>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct HourInfo {
     class_name: String,
     schedule_name: String
@@ -135,19 +144,19 @@ impl Week {
 
         for block in &schedule.blocks {
             match block.day {
-                domain::Day::Monday => Week::insert_block_hashmap(&self.monday, block, &schedule.schedule_name, class_name),
-                domain::Day::Tuesday => Week::insert_block_hashmap(&self.tuesday, block, &schedule.schedule_name, class_name),
-                domain::Day::Wednesday => Week::insert_block_hashmap(&self.wednesday, block, &schedule.schedule_name, class_name),
-                domain::Day::Thursday => Week::insert_block_hashmap(&self.thursday, block, &schedule.schedule_name, class_name),
-                domain::Day::Friday => Week::insert_block_hashmap(&self.friday, block, &schedule.schedule_name, class_name),
-                domain::Day::Saturday => Week::insert_block_hashmap(&self.saturday, block, &schedule.schedule_name, class_name),
+                domain::Day::Monday => Week::insert_block_hashmap(&mut self.monday, block, &schedule.schedule_name, class_name),
+                domain::Day::Tuesday => Week::insert_block_hashmap(&mut self.tuesday, block, &schedule.schedule_name, class_name),
+                domain::Day::Wednesday => Week::insert_block_hashmap(&mut self.wednesday, block, &schedule.schedule_name, class_name),
+                domain::Day::Thursday => Week::insert_block_hashmap(&mut self.thursday, block, &schedule.schedule_name, class_name),
+                domain::Day::Friday => Week::insert_block_hashmap(&mut self.friday, block, &schedule.schedule_name, class_name),
+                domain::Day::Saturday => Week::insert_block_hashmap(&mut self.saturday, block, &schedule.schedule_name, class_name),
             }
         }
 
         Ok(())
     }
 
-    fn insert_block_hashmap(day_map: &HashMap<u8, HourInfo>, block: &Block, schedule_name: &str, class_name: &str) {
+    fn insert_block_hashmap(day_map: &mut HashMap<u8, HourInfo>, block: &Block, schedule_name: &str, class_name: &str) {
         for hour in block.start_hour..block.finish_hour {
             day_map.insert(hour, HourInfo { 
                 schedule_name: schedule_name.to_string(),
@@ -175,5 +184,175 @@ impl Week {
         }
 
         return false
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use domain::{Block, Class, Day, Schedule};
+
+    use crate::{generate_plans_recursive, Week};
+
+    #[test]
+    fn week_recursive_test() {
+
+        let classes = vec![
+            Class {
+                class_name: "Math".to_string(),
+                schedules: vec![
+                    Schedule {
+                        schedule_name: "Math 1".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 7,
+                                finish_hour: 9,
+                                day: Day::Monday
+                            }
+                        ]
+                    },
+                    Schedule {
+                        schedule_name: "Math 2".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 7,
+                                finish_hour: 9,
+                                day: Day::Tuesday
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            Class {
+                class_name: "Prog".to_string(),
+                schedules: vec![
+                    Schedule {
+                        schedule_name: "Prog 1".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 8,
+                                finish_hour: 10,
+                                day: Day::Saturday,
+                            },
+                            Block {
+                                start_hour: 8,
+                                finish_hour: 10,
+                                day: Day::Monday
+                            }
+                        ]
+                    },
+                    Schedule {
+                        schedule_name: "Prog 2".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 10,
+                                finish_hour: 12,
+                                day: Day::Monday
+                            },
+                            Block {
+                                start_hour: 12,
+                                finish_hour: 14,
+                                day: Day::Tuesday
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let mut valid_weeks: Vec<Week> = Vec::new();
+
+        generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
+
+        assert_eq!(valid_weeks.len(), 3);
+    }
+
+    #[test]
+    fn week_recursive_test_no_options() {
+
+        let classes = vec![
+            Class {
+                class_name: "Math".to_string(),
+                schedules: vec![
+                    Schedule {
+                        schedule_name: "Math 1".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 7,
+                                finish_hour: 9,
+                                day: Day::Monday
+                            }
+                        ]
+                    },
+                    Schedule {
+                        schedule_name: "Math 2".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 7,
+                                finish_hour: 9,
+                                day: Day::Tuesday
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            Class {
+                class_name: "Prog".to_string(),
+                schedules: vec![
+                    Schedule {
+                        schedule_name: "Prog 1".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 8,
+                                finish_hour: 10,
+                                day: Day::Saturday,
+                            },
+                            Block {
+                                start_hour: 8,
+                                finish_hour: 10,
+                                day: Day::Monday
+                            }
+                        ]
+                    },
+                    Schedule {
+                        schedule_name: "Prog 2".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 10,
+                                finish_hour: 12,
+                                day: Day::Monday
+                            },
+                            Block {
+                                start_hour: 12,
+                                finish_hour: 14,
+                                day: Day::Tuesday
+                            }
+                        ]
+                    }
+                ]
+            },
+            Class {
+                class_name: "Core".to_string(),
+                schedules: vec![
+                    Schedule {
+                        schedule_name: "Core 1".to_string(),
+                        blocks: vec![
+                            Block {
+                                start_hour: 7,
+                                finish_hour: 11,
+                                day: Day::Monday
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let mut valid_weeks: Vec<Week> = Vec::new();
+
+        generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
+
+        assert_eq!(valid_weeks.len(), 0);
     }
 }
