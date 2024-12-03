@@ -53,6 +53,7 @@ pub struct Schedule {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Class {
+    pub class_id: i32,
     pub class_name: String,
     pub schedules: Vec<Schedule>
 }

@@ -54,7 +54,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_class(&self, user_id: i32, class_id: i32) -> Result<Class> {
         let class_row = sqlx::query!(
-            "SELECT class_name FROM classes WHERE class_id = ? AND user_id = ?",
+            "SELECT class_name, class_id FROM classes WHERE class_id = ? AND user_id = ?",
             class_id,
             user_id
         )
@@ -65,7 +65,8 @@ impl PlannerRepository for SqlitePlannerRepository {
 
         Ok(Class {
             class_name: class_row.class_name,
-            schedules
+            schedules,
+            class_id: class_row.class_id as i32
         })
     }
 
@@ -82,7 +83,8 @@ impl PlannerRepository for SqlitePlannerRepository {
             let schedules = self.get_schedules(class_row.class_id as i32).await?;
             classes.push(Class {
                 class_name: class_row.class_name,
-                schedules
+                schedules,
+                class_id: class_row.class_id as i32
             });
         }
 
