@@ -168,7 +168,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_blocks(&self, schedule_id: i32) -> Result<Vec<Block>> {
         let block_rows = sqlx::query!(
-            "SELECT start_hour, finish_hour, day FROM block WHERE schedule_id = ?",
+            "SELECT start_hour, finish_hour, day, block_id FROM block WHERE schedule_id = ?",
             schedule_id
         )
         .fetch_all(&self.pool)
@@ -177,7 +177,8 @@ impl PlannerRepository for SqlitePlannerRepository {
         let blocks = block_rows.into_iter().map(|row| Block {
             start_hour: row.start_hour as u8,
             finish_hour: row.finish_hour as u8,
-            day: Day::from(row.day)
+            day: Day::from(row.day),
+            block_id: row.block_id as i32
         }).collect();
 
         Ok(blocks)

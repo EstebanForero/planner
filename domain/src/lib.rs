@@ -42,7 +42,8 @@ impl ToString for Day {
 pub struct Block {
     pub start_hour: u8,
     pub finish_hour: u8,
-    pub day: Day
+    pub day: Day,
+    pub block_id: i32
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
