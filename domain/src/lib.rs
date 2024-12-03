@@ -43,7 +43,7 @@ pub struct Block {
     pub start_hour: u8,
     pub finish_hour: u8,
     pub day: Day,
-    pub block_id: i32
+    pub block_id: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -55,7 +55,8 @@ pub struct CreateBlock {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Schedule {
     pub blocks: Vec<Block>,
-    pub schedule_name: String
+    pub schedule_name: String,
+    pub schedule_id: i32
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

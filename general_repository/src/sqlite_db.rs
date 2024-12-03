@@ -1,5 +1,4 @@
 use sqlx::{SqlitePool, query, query_as};
-use uuid::Uuid;
 use domain::{Day, Block};
 
 use super::{Schedule, Class};
@@ -130,7 +129,7 @@ impl PlannerRepository for SqlitePlannerRepository {
         let mut schedules = Vec::new();
         for schedule_row in schedule_rows {
             let blocks = self.get_blocks(schedule_row.schedule_id as i32).await?;
-            schedules.push(Schedule { blocks, schedule_name: schedule_row.schedule_name });
+            schedules.push(Schedule { blocks, schedule_name: schedule_row.schedule_name, schedule_id: schedule_row.schedule_id as i32 });
         }
 
         Ok(schedules)
@@ -178,7 +177,7 @@ impl PlannerRepository for SqlitePlannerRepository {
             start_hour: row.start_hour as u8,
             finish_hour: row.finish_hour as u8,
             day: Day::from(row.day),
-            block_id: row.block_id as i32
+            block_id: row.block_id as i32,
         }).collect();
 
         Ok(blocks)
