@@ -1,46 +1,35 @@
-use sqlx::{migrate::MigrateDatabase, query, query_as, Sqlite, SqlitePool};
+use sqlx::PgPool;
 use domain::{Day, Block};
 
 use super::{Schedule, Class};
 use crate::{err::{self, RepositoryError, Result}, PlannerRepository};
 
 #[derive(Clone)]
-pub struct SqlitePlannerRepository {
-    pool: SqlitePool,
+pub struct PostgresPlannerRepository {
+    pool: PgPool,
 }
 
-impl SqlitePlannerRepository {
-    pub fn new(pool: SqlitePool) -> Self {
+impl PostgresPlannerRepository {
+    pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 
     pub async fn generate_pool(db_url: &str) -> Self {
-
-        if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
-            println!("Creating database {}", db_url);
-            match Sqlite::create_database(db_url).await {
-                Ok(_) => println!("Create db success"),
-                Err(error) => panic!("error: {}", error),
+        match PgPool::connect(db_url).await {
+            Ok(pool) => {
+                PostgresPlannerRepository { pool }
+            },
+            Err(_) => {
+                panic!("Could not connect to database. Please ensure the database exists.");
             }
-        } else {
-            println!("Database already exists");
         }
-
-        let pool = SqlitePool::connect(&db_url).await.expect("Errror creating database");
-
-        sqlx::migrate!()
-            .run(&pool)
-            .await
-            .unwrap();
-
-        SqlitePlannerRepository { pool }
     }
 }
 
-impl PlannerRepository for SqlitePlannerRepository {
+impl PlannerRepository for PostgresPlannerRepository {
     async fn add_class(&self, user_id: i32, class_name: String) -> Result<()> {
         sqlx::query!(
-            "INSERT INTO classes (class_name, user_id) VALUES (?, ?)",
+            "INSERT INTO classes (class_name, user_id) VALUES ($1, $2)",
             class_name,
             user_id
         )
@@ -52,7 +41,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn delete_class(&self, user_id: i32, class_id: i32) -> Result<()> {
         let result = sqlx::query!(
-            "DELETE FROM classes WHERE class_id = ? AND user_id = ?",
+            "DELETE FROM classes WHERE class_id = $1 AND user_id = $2",
             class_id,
             user_id
         )
@@ -68,7 +57,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_class(&self, user_id: i32, class_id: i32) -> Result<Class> {
         let class_row = sqlx::query!(
-            "SELECT class_name, class_id FROM classes WHERE class_id = ? AND user_id = ?",
+            "SELECT class_name, class_id FROM classes WHERE class_id = $1 AND user_id = $2",
             class_id,
             user_id
         )
@@ -80,13 +69,13 @@ impl PlannerRepository for SqlitePlannerRepository {
         Ok(Class {
             class_name: class_row.class_name,
             schedules,
-            class_id: class_row.class_id as i32
+            class_id: class_row.class_id
         })
     }
 
     async fn get_classes(&self, user_id: i32) -> Result<Vec<Class>> {
         let class_rows = sqlx::query!(
-            "SELECT class_id, class_name FROM classes WHERE user_id = ?",
+            "SELECT class_id, class_name FROM classes WHERE user_id = $1",
             user_id
         )
         .fetch_all(&self.pool)
@@ -94,11 +83,11 @@ impl PlannerRepository for SqlitePlannerRepository {
 
         let mut classes = Vec::new();
         for class_row in class_rows {
-            let schedules = self.get_schedules(class_row.class_id as i32).await?;
+            let schedules = self.get_schedules(class_row.class_id).await?;
             classes.push(Class {
                 class_name: class_row.class_name,
                 schedules,
-                class_id: class_row.class_id as i32
+                class_id: class_row.class_id
             });
         }
 
@@ -107,7 +96,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn add_schedule(&self, class_id: i32, schedule_name: String) -> Result<()> {
         sqlx::query!(
-            "INSERT INTO schedule (class_id, schedule_name) VALUES (?, ?)",
+            "INSERT INTO schedule (class_id, schedule_name) VALUES ($1, $2)",
             class_id,
             schedule_name
         )
@@ -119,7 +108,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn delete_schedule(&self, schedule_id: i32) -> Result<()> {
         let result = sqlx::query!(
-            "DELETE FROM schedule WHERE schedule_id = ?",
+            "DELETE FROM schedule WHERE schedule_id = $1",
             schedule_id
         )
         .execute(&self.pool)
@@ -134,7 +123,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_schedules(&self, class_id: i32) -> Result<Vec<Schedule>> {
         let schedule_rows = sqlx::query!(
-            "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = ?",
+            "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = $1",
             class_id
         )
         .fetch_all(&self.pool)
@@ -142,8 +131,12 @@ impl PlannerRepository for SqlitePlannerRepository {
 
         let mut schedules = Vec::new();
         for schedule_row in schedule_rows {
-            let blocks = self.get_blocks(schedule_row.schedule_id as i32).await?;
-            schedules.push(Schedule { blocks, schedule_name: schedule_row.schedule_name, schedule_id: schedule_row.schedule_id as i32 });
+            let blocks = self.get_blocks(schedule_row.schedule_id).await?;
+            schedules.push(Schedule { 
+                blocks, 
+                schedule_name: schedule_row.schedule_name, 
+                schedule_id: schedule_row.schedule_id 
+            });
         }
 
         Ok(schedules)
@@ -152,9 +145,9 @@ impl PlannerRepository for SqlitePlannerRepository {
     async fn add_block(&self, schedule_id: i32, block: Block) -> Result<()> {
         let day_string = block.day.clone().to_string();
         sqlx::query!(
-            "INSERT INTO block (start_hour, finish_hour, day, schedule_id) VALUES (?, ?, ?, ?)",
-            block.start_hour,
-            block.finish_hour,
+            "INSERT INTO block (start_hour, finish_hour, day, schedule_id) VALUES ($1, $2, $3, $4)",
+            block.start_hour as i16,
+            block.finish_hour as i16,
             day_string,
             schedule_id
         )
@@ -166,7 +159,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn delete_block(&self, block_id: i32) -> Result<()> {
         let result = sqlx::query!(
-            "DELETE FROM block WHERE block_id = ?",
+            "DELETE FROM block WHERE block_id = $1",
             block_id
         )
         .execute(&self.pool)
@@ -181,7 +174,7 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn get_blocks(&self, schedule_id: i32) -> Result<Vec<Block>> {
         let block_rows = sqlx::query!(
-            "SELECT start_hour, finish_hour, day, block_id FROM block WHERE schedule_id = ?",
+            "SELECT start_hour, finish_hour, day, block_id FROM block WHERE schedule_id = $1",
             schedule_id
         )
         .fetch_all(&self.pool)
@@ -191,7 +184,7 @@ impl PlannerRepository for SqlitePlannerRepository {
             start_hour: row.start_hour as u8,
             finish_hour: row.finish_hour as u8,
             day: Day::from(row.day),
-            block_id: row.block_id as i32,
+            block_id: row.block_id,
         }).collect();
 
         Ok(blocks)
@@ -199,11 +192,11 @@ impl PlannerRepository for SqlitePlannerRepository {
 
     async fn add_user(&self) -> err::Result<i32> {
         let result = sqlx::query!(
-        "INSERT INTO planner_user DEFAULT VALUES; SELECT last_insert_rowid() as user_id;"
-    )
-            .fetch_one(&self.pool)
+            "INSERT INTO planner_user DEFAULT VALUES RETURNING user_id"
+        )
+        .fetch_one(&self.pool)
         .await?;
 
-        Ok(result.user_id as i32)
+        Ok(result.user_id)
     }
 }

@@ -8,5 +8,5 @@ uuid = { version = "1.11.0", features = ["v4"] }
 domain = { path = "../domain/" }
 mockall = "0.13"
 thiserror = "2.0.3"
-sqlx = { version = "0.8.2", features = ["runtime-tokio", "sqlite"] }
+sqlx = { version = "0.8.2", features = ["runtime-tokio", "postgres"] }
 
