@@ -42,8 +42,5 @@ RUN chmod +x /app/api_entry
 # Expose the port your app runs on (adjust as needed)
 EXPOSE 8080
 
-# Set the volume for persistent database storage
-VOLUME ["/app/db"]
-
 # Command to run the application
 CMD ["./api_entry"]
