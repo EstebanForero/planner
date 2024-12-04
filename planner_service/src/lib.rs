@@ -137,6 +137,22 @@ impl<T: PlannerRepository> PlannerService<T> {
     }
 } 
 
+fn get_week_ranking(week: &Week, day_points: f32) -> f32 {
+    let mut day_total_points = 0.;
+    day_total_points -= if week.monday.is_empty() { 0. } else { day_points };
+    day_total_points -= if week.tuesday.is_empty() { 0. } else { day_points };
+    day_total_points -= if week.wednesday.is_empty() { 0. } else { day_points };
+    day_total_points -= if week.thursday.is_empty() { 0. } else { day_points };
+    day_total_points -= if week.friday.is_empty() { 0. } else { day_points };
+    day_total_points -= if week.saturday.is_empty() { 0. } else { day_points };
+
+    day_total_points
+}
+
+fn get_hour_ranking(week: &Week, hour_points: f32) -> f32 {
+
+}
+
 fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: usize, class_list: &Vec<Class>, current_week: Week) {
     if current_class_index >= class_list.len() {
         valid_weeks.push(current_week.clone());

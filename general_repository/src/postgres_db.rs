@@ -48,10 +48,6 @@ impl PlannerRepository for PostgresPlannerRepository {
         .execute(&self.pool)
         .await?;
 
-        if result.rows_affected() == 0 {
-            return Err(RepositoryError::DatabaseError(sqlx::Error::RowNotFound));
-        }
-
         Ok(())
     }
 
@@ -114,10 +110,6 @@ impl PlannerRepository for PostgresPlannerRepository {
         .execute(&self.pool)
         .await?;
 
-        if result.rows_affected() == 0 {
-            return Err(RepositoryError::DatabaseError(sqlx::Error::RowNotFound));
-        }
-
         Ok(())
     }
 
@@ -164,10 +156,6 @@ impl PlannerRepository for PostgresPlannerRepository {
         )
         .execute(&self.pool)
         .await?;
-
-        if result.rows_affected() == 0 {
-            return Err(RepositoryError::DatabaseError(sqlx::Error::RowNotFound));
-        }
 
         Ok(())
     }
