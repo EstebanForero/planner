@@ -27,8 +27,8 @@ impl<T: PlannerRepository> PlannerService<T> {
     }
 
     pub async fn remove_schedule(&self, schedule_id: i32) -> err::Result<()> {
-        self.repository.delete_schedule(schedule_id).await.map_err(|_| {
-            error!("delete schedule has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+        self.repository.delete_schedule(schedule_id).await.map_err(|err| {
+            error!("delete schedule has en error: {}", err);
 
             PlannerError::RemoveScheduleError
         })?;
@@ -47,8 +47,8 @@ impl<T: PlannerRepository> PlannerService<T> {
     }
     
     pub async fn remove_class(&self, user_id: i32, class_id: i32) -> err::Result<()> {
-        self.repository.delete_class(user_id, class_id).await.map_err(|_| {
-            error!("add class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+        self.repository.delete_class(user_id, class_id).await.map_err(|err| {
+            error!("remove class has en error: {}", err);
 
             PlannerError::RemoveClassError
         })?;
@@ -76,6 +76,16 @@ impl<T: PlannerRepository> PlannerService<T> {
         Ok(classes)
     }
 
+    pub async fn rank_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
+        let classes = self.obtain_classes(user_id).await?;
+
+        let mut valid_weeks: Vec<Week> = Vec::new();
+
+        generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
+
+        todo!()
+    }
+
     pub async fn generate_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
         let classes = self.obtain_classes(user_id).await?;
 
@@ -97,8 +107,8 @@ impl<T: PlannerRepository> PlannerService<T> {
     }
 
     pub async fn delete_block(&self, block_id: i32) -> err::Result<()> {
-        self.repository.delete_block(block_id).await.map_err(|_| {
-            error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+        self.repository.delete_block(block_id).await.map_err(|err| {
+            error!("delete block class has en error: {}", err);
 
             PlannerError::DeleteBlockError
         })?;

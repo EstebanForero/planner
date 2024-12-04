@@ -47,6 +47,12 @@ pub struct Block {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct RankingParameters {
+    pub cost_hour: f32,
+    pub cost_day: f32
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BlockInfo {
     pub start_hour: u8,
     pub finish_hour: u8,
