@@ -1,6 +1,6 @@
 use std::env;
 
-use axum::Router;
+use axum::{routing::get, Router};
 use general_repository::postgres_db::PostgresPlannerRepository;
 use planner_api::planner_router;
 mod planner_api;
@@ -20,9 +20,14 @@ async fn main() {
 
     let main_router = Router::new()
         .nest("/planner", planner_router)
+        .route("/", get(health_check))
         .layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
     axum::serve(listener, main_router).await.unwrap();
+}
+
+async fn health_check() -> &'static str {
+    "i am alive!!!!!!!!!"
 }
