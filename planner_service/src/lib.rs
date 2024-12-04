@@ -150,7 +150,7 @@ fn get_week_ranking(week: &Week, day_points: f32) -> f32 {
 }
 
 fn get_hour_ranking(week: &Week, hour_points: f32) -> f32 {
-
+    todo!()
 }
 
 fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: usize, class_list: &Vec<Class>, current_week: Week) {
