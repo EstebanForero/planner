@@ -34,8 +34,9 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Create db directory
-RUN mkdir -p /app/db
+# Create db directory with full permissions
+RUN mkdir -p /app/db && \
+    chmod 777 /app/db
 
 # Copy the built binary from the builder stage
 COPY --from=builder /app/target/release/api_entry ./
@@ -44,7 +45,15 @@ COPY --from=builder /app/target/release/api_entry ./
 COPY .env* ./
 
 # Set the DATABASE_URL for runtime
-ENV DATABASE_URL=sqlite://db/local.db
+ENV DATABASE_URL=sqlite:///app/db/local.db
+
+# Add debugging commands
+RUN pwd && \
+    ls -la && \
+    ls -la /app && \
+    ls -la /app/db && \
+    touch /app/db/test.txt && \
+    ls -la /app/db
 
 # Ensure correct permissions
 RUN chmod +x /app/api_entry
@@ -53,4 +62,4 @@ RUN chmod +x /app/api_entry
 EXPOSE 8080
 
 # Command to run the application
-CMD ["./api_entry"]
+CMD ["sh", "-c", "pwd && ls -la /app/db && ./api_entry"]
