@@ -29,4 +29,7 @@ pub enum PlannerError {
 
     #[error("get blocks error")]
     GetBlocksError,
+
+    #[error("add user error")]
+    AddUserError,
 }

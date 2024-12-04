@@ -115,6 +115,16 @@ impl<T: PlannerRepository> PlannerService<T> {
 
         Ok(blocks)
     }
+
+    pub async fn create_user(&self) -> err::Result<i32> {
+        let id = self.repository.add_user().await.map_err(|_| {
+            error!("add user has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
+
+            PlannerError::AddUserError
+        })?;
+
+        Ok(id)
+    }
 } 
 
 fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: usize, class_list: &Vec<Class>, current_week: Week) {
