@@ -14,25 +14,25 @@ pub fn planner_router(repo: PostgresPlannerRepository) -> Router {
 
     Router::new()
         // Schedules
-        .route("/schedule", post(add_schedule))
-        .route("/schedule/:schedule_id", delete(delete_schedule))
+        .route("/addSchedule", post(add_schedule))
+        .route("/deleteSchedule/:schedule_id", delete(delete_schedule))
 
         // Classes
-        .route("/class", post(create_class))
-        .route("/class", delete(delete_class))
-        .route("/class/:user_id/:class_id", get(get_class))
-        .route("/classes/:user_id", get(get_classes))
+        .route("/addClass", post(create_class))
+        .route("/deleteClass", delete(delete_class))
+        .route("/getClass", post(get_class))
+        .route("/getClasses/:user_id", get(get_classes))
 
         // Blocks
-        .route("/block", post(add_block))
-        .route("/block/:block_id", delete(delete_block))
-        .route("/blocks/:schedule_id", get(get_blocks))
+        .route("/addBlock", post(add_block))
+        .route("/deleteBlock/:block_id", delete(delete_block))
+        .route("/getBlocks/:schedule_id", get(get_blocks))
 
         // Planning
         .route("/planning/:user_id", get(generate_plannings))
 
         // User
-        .route("/user", post(add_user))
+        .route("/addUser", post(add_user))
         .with_state(state)
 }
 
