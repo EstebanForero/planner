@@ -178,5 +178,7 @@ async fn add_user(State(state): State<AppState>) -> impl IntoResponse {
         StatusCode::INTERNAL_SERVER_ERROR
     }).unwrap(); 
 
+    let id = serde_json::to_string(&id).unwrap();
+
     (StatusCode::OK, id)
 }
