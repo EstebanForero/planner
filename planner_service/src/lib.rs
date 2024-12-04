@@ -1,7 +1,7 @@
 mod err;
 use std::{collections::HashMap, usize};
 
-use domain::{Block, Class, Schedule};
+use domain::{Block, BlockInfo, Class, Schedule};
 use err::PlannerError;
 use general_repository::PlannerRepository;
 use serde::{Deserialize, Serialize};
@@ -86,7 +86,7 @@ impl<T: PlannerRepository> PlannerService<T> {
         Ok(valid_weeks)
     }
 
-    pub async fn add_block(&self, schedule_id: i32, block: Block) -> err::Result<()> {
+    pub async fn add_block(&self, schedule_id: i32, block: BlockInfo) -> err::Result<()> {
         self.repository.add_block(schedule_id, block).await.map_err(|_| {
             error!("get class has en error pls solve ahhhhhhhhhhhhhhhhhh ahhhhhhhhhhhhhhhhhhhh it hurts");
 

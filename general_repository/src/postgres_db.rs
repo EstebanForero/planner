@@ -1,5 +1,5 @@
 use sqlx::PgPool;
-use domain::{Day, Block};
+use domain::{Block, BlockInfo, Day};
 
 use super::{Schedule, Class};
 use crate::{err::{self, RepositoryError, Result}, PlannerRepository};
@@ -142,7 +142,7 @@ impl PlannerRepository for PostgresPlannerRepository {
         Ok(schedules)
     }
 
-    async fn add_block(&self, schedule_id: i32, block: Block) -> Result<()> {
+    async fn add_block(&self, schedule_id: i32, block: BlockInfo) -> Result<()> {
         let day_string = block.day.clone().to_string();
         sqlx::query!(
             "INSERT INTO block (start_hour, finish_hour, day, schedule_id) VALUES ($1, $2, $3, $4)",

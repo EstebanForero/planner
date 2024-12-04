@@ -47,8 +47,15 @@ pub struct Block {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct BlockInfo {
+    pub start_hour: u8,
+    pub finish_hour: u8,
+    pub day: Day,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CreateBlock {
-    pub block: Block,
+    pub block: BlockInfo,
     pub schedule_id: i32
 }
 

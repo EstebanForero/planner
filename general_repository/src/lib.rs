@@ -1,7 +1,7 @@
 mod err;
 pub mod postgres_db;
 
-use domain::{Class, Schedule, Block};
+use domain::{Block, BlockInfo, Class, Schedule};
 use mockall::automock;
 
 #[automock]
@@ -18,7 +18,7 @@ pub trait PlannerRepository: Send {
     async fn get_schedules(&self, class_id: i32) -> err::Result<Vec<Schedule>>;
 
     // Block operations
-    async fn add_block(&self, schedule_id: i32, block: Block) -> err::Result<()>;
+    async fn add_block(&self, schedule_id: i32, block: BlockInfo) -> err::Result<()>;
     async fn delete_block(&self, block_id: i32) -> err::Result<()>;
     async fn get_blocks(&self, schedule_id: i32) -> err::Result<Vec<Block>>;
 
