@@ -1,15 +1,15 @@
 use axum::{extract::{Json, Path, State}, http::StatusCode, response::IntoResponse, Router};
 use domain::{CreateBlock, CreateClass, CreateSchedule, DeleteClass};
-use general_repository::sqlite_db::SqlitePlannerRepository;
+use general_repository::postgres_db::PostgresPlannerRepository;
 use planner_service::PlannerService;
 use tracing::error;
 
 #[derive(Clone)]
 struct AppState {
-    repo: SqlitePlannerRepository,
+    repo: PostgresPlannerRepository,
 }
 
-pub fn planner_router(repo: SqlitePlannerRepository) -> Router {
+pub fn planner_router(repo: PostgresPlannerRepository) -> Router {
     let state = AppState { repo };
 
     Router::new()

@@ -1,7 +1,8 @@
 use std::env;
 
 use axum::Router;
-use general_repository::sqlite_db::SqlitePlannerRepository; use planner_api::planner_router;
+use general_repository::postgres_db::PostgresPlannerRepository;
+use planner_api::planner_router;
 mod planner_api;
 
 
@@ -11,7 +12,7 @@ async fn main() {
     dotenvy::dotenv().ok();
 
     let db_url = env::var("DATABASE_URL").unwrap();
-    let pool = SqlitePlannerRepository::generate_pool(&db_url).await;
+    let pool = PostgresPlannerRepository::generate_pool(&db_url).await;
 
     let cors = tower_http::cors::CorsLayer::permissive();
 
