@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT start_hour, finish_hour, day, block_id FROM block WHERE schedule_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "start_hour",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "finish_hour",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "day",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "block_id",
+        "ordinal": 3,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "632ed944ce39ce848511fc330054c51b2c9e582f0256c11f74427f9409cb6148"
+}

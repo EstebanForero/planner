@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO planner_user DEFAULT VALUES; SELECT last_insert_rowid() as user_id;",
+  "describe": {
+    "columns": [
+      {
+        "name": "user_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c02ce322bee75ab2413dcd04915049c5a0c963d1b07770da5c8abf5725e58a83"
+}

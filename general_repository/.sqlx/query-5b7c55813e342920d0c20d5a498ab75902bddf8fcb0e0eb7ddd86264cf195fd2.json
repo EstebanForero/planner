@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM classes WHERE class_id = ? AND user_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "5b7c55813e342920d0c20d5a498ab75902bddf8fcb0e0eb7ddd86264cf195fd2"
+}
