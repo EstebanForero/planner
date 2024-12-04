@@ -14,12 +14,11 @@ impl SqlitePlannerRepository {
         Self { pool }
     }
 
-    pub async fn generate_pool() -> Self {
-        let database_url = "sqlite://db/local.db";
+    pub async fn generate_pool(db_url: &str) -> Self {
 
-        if !Sqlite::database_exists(database_url).await.unwrap_or(false) {
-            println!("Creating database {}", database_url);
-            match Sqlite::create_database(database_url).await {
+        if !Sqlite::database_exists(db_url).await.unwrap_or(false) {
+            println!("Creating database {}", db_url);
+            match Sqlite::create_database(db_url).await {
                 Ok(_) => println!("Create db success"),
                 Err(error) => panic!("error: {}", error),
             }
@@ -27,7 +26,7 @@ impl SqlitePlannerRepository {
             println!("Database already exists");
         }
 
-        let pool = SqlitePool::connect(&database_url).await.expect("Errror creating database");
+        let pool = SqlitePool::connect(&db_url).await.expect("Errror creating database");
 
         sqlx::migrate!()
             .run(&pool)

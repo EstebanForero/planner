@@ -47,6 +47,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "domain",
+ "dotenvy",
  "general_repository",
  "planner_service",
  "serde_json",

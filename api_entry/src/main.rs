@@ -1,14 +1,17 @@
+use std::env;
+
 use axum::Router;
-use general_repository::sqlite_db::SqlitePlannerRepository;
-use planner_api::planner_router;
+use general_repository::sqlite_db::SqlitePlannerRepository; use planner_api::planner_router;
 mod planner_api;
 
 
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
+    dotenvy::dotenv().ok();
 
-    let pool = SqlitePlannerRepository::generate_pool().await;
+    let db_url = env::var("DATABASE_URL").unwrap();
+    let pool = SqlitePlannerRepository::generate_pool(&db_url).await;
 
     let cors = tower_http::cors::CorsLayer::permissive();
 
