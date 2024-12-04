@@ -1,4 +1,3 @@
-use std::net::SocketAddr;
 use axum::Router;
 use general_repository::sqlite_db::SqlitePlannerRepository;
 use planner_api::planner_router;
