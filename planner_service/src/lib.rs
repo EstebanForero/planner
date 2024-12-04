@@ -1,7 +1,7 @@
 mod err;
 use std::{collections::HashMap, usize};
 
-use domain::{Block, BlockInfo, Class, Schedule};
+use domain::{Block, BlockInfo, Class, RankingParameters, Schedule};
 use err::PlannerError;
 use general_repository::PlannerRepository;
 use serde::{Deserialize, Serialize};
@@ -76,7 +76,7 @@ impl<T: PlannerRepository> PlannerService<T> {
         Ok(classes)
     }
 
-    pub async fn rank_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
+    pub async fn rank_plannings(&self, user_id: i32, ranking_parameters: RankingParameters) -> err::Result<Vec<RatedWeek>> {
         let classes = self.obtain_classes(user_id).await?;
 
         let mut valid_weeks: Vec<Week> = Vec::new();
@@ -155,6 +155,12 @@ fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: us
             generate_plans_recursive(valid_weeks, current_class_index + 1, class_list, current_week_to_insert)
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RatedWeek {
+    week: Week,
+    puntuation: f32
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
