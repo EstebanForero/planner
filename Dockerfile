@@ -7,10 +7,15 @@ WORKDIR /app
 # Copy all project files
 COPY . .
 
+# Set the DATABASE_URL for the build process
+ENV DATABASE_URL=sqlite://db/local.db
+
 # Install system dependencies if needed
 RUN apt-get update && apt-get install -y \
     libssl-dev \
-    pkg-config
+    pkg-config \
+    sqlite3 \
+    libsqlite3-dev
 
 # Build the project in release mode
 RUN cargo build --release
@@ -22,6 +27,8 @@ FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     ca-certificates \
+    sqlite3 \
+    libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -35,6 +42,9 @@ COPY --from=builder /app/target/release/api_entry ./
 
 # Copy .env file if it exists
 COPY .env* ./
+
+# Set the DATABASE_URL for runtime
+ENV DATABASE_URL=sqlite://db/local.db
 
 # Ensure correct permissions
 RUN chmod +x /app/api_entry
