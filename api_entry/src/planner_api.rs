@@ -52,8 +52,8 @@ async fn add_schedule(State(state): State<AppState>, Json(shedule): Json<CreateS
 async fn delete_schedule(State(state): State<AppState>, Path(schedule_id): Path<i32>) -> impl IntoResponse {
     let planner_service = PlannerService::new(state.repo);
 
-    planner_service.remove_schedule(schedule_id).await.map_err(|_| {
-        error!("error in remove schedule");
+    planner_service.remove_schedule(schedule_id).await.map_err(|err| {
+        error!("error in remove schedule: {}", err);
 
         StatusCode::INTERNAL_SERVER_ERROR
     }).unwrap();

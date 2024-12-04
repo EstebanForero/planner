@@ -11,6 +11,8 @@ async fn main() {
     println!("Hello, world!");
     dotenvy::dotenv().ok();
 
+    tracing_subscriber::fmt::init();
+
     let db_url = env::var("DATABASE_URL").unwrap();
     let pool = PostgresPlannerRepository::generate_pool(&db_url).await;
 
