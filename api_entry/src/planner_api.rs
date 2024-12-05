@@ -30,7 +30,7 @@ pub fn planner_router(repo: PostgresPlannerRepository) -> Router {
 
         // Planning
         .route("/planning/:user_id", get(generate_plannings))
-        .route("/planningRanked/:user_id", post(ranked_plannings))
+        .route("/planningRanked", post(ranked_plannings))
 
         // User
         .route("/addUser", post(add_user))
