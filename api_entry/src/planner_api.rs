@@ -22,6 +22,7 @@ pub fn planner_router(repo: PostgresPlannerRepository) -> Router {
         .route("/deleteClass", delete(delete_class))
         .route("/getClass", post(get_class))
         .route("/getClasses/:user_id", get(get_classes))
+        .route("/getClassesId/:user_id", get(get_classes_id))
 
         // Blocks
         .route("/addBlock", post(add_block))
@@ -105,6 +106,20 @@ async fn get_classes(State(state): State<AppState>, Path(user_id): Path<i32>) ->
     let planner_service = PlannerService::new(state.repo);
 
     let classes = planner_service.obtain_classes(user_id).await.map_err(|_| {
+        error!("error in obtain_classes");
+
+        StatusCode::INTERNAL_SERVER_ERROR
+    }).unwrap();
+
+    let classes = serde_json::to_string(&classes).unwrap();
+
+    (StatusCode::OK, [("Content-Type", "application/json")], classes)
+}
+
+async fn get_classes_id(State(state): State<AppState>, Path(user_id): Path<i32>) -> impl IntoResponse {
+    let planner_service = PlannerService::new(state.repo);
+
+    let classes = planner_service.obtain_classes_id(user_id).await.map_err(|_| {
         error!("error in obtain_classes");
 
         StatusCode::INTERNAL_SERVER_ERROR

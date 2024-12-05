@@ -76,6 +76,16 @@ impl<T: PlannerRepository> PlannerService<T> {
         Ok(classes)
     }
 
+    pub async fn obtain_classes_id(&self, user_id: i32) -> err::Result<Vec<i32>> {
+        let classes_id = self.repository.get_classes_id(user_id).await.map_err(|err| {
+            error!("Error in get classes id: {}", err);
+
+            PlannerError::GetClassesIdError
+        })?;
+
+        Ok(classes_id)
+    }
+
     pub async fn rank_plannings(&self, user_id: i32, ranking_parameters: RankingParameters) -> err::Result<Vec<RatedWeek>> {
         let classes = self.obtain_classes(user_id).await?;
 

@@ -187,4 +187,14 @@ impl PlannerRepository for PostgresPlannerRepository {
 
         Ok(result.user_id)
     }
+
+    async fn get_classes_id(&self, user_id:i32) -> err::Result<Vec<i32>> {
+        let class_ids = sqlx::query!("SELECT class_id FROM classes WHERE user_id = $1", user_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+        let class_ids = class_ids.into_iter().map(|class_record| class_record.class_id).collect();
+
+        Ok(class_ids)
+    }
 }

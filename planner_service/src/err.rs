@@ -21,6 +21,9 @@ pub enum PlannerError {
     #[error("get classes error")]
     GetClassesError,
 
+    #[error("get classes error")]
+    GetClassesIdError,
+
     #[error("add block error")]
     AddBlockError,
 
