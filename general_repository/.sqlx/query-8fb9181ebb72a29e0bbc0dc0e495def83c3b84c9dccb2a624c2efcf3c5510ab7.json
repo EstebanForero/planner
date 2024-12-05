@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT class_name, class_id FROM classes WHERE class_id = $1 AND user_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "class_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "class_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "8fb9181ebb72a29e0bbc0dc0e495def83c3b84c9dccb2a624c2efcf3c5510ab7"
+}

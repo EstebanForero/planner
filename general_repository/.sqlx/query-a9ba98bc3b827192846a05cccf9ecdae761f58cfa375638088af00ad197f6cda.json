@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT start_hour, finish_hour, day, block_id FROM block WHERE schedule_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "start_hour",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "finish_hour",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "day",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "block_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a9ba98bc3b827192846a05cccf9ecdae761f58cfa375638088af00ad197f6cda"
+}

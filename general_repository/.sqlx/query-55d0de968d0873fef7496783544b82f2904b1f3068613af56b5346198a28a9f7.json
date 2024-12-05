@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "schedule_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "schedule_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "55d0de968d0873fef7496783544b82f2904b1f3068613af56b5346198a28a9f7"
+}
