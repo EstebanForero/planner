@@ -41,7 +41,7 @@ impl ToString for Day {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RankedParametersEndpoint {
     pub ranked_parameters: RankingParameters,
-    pub user_id: i32
+    pub user_id: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -55,7 +55,8 @@ pub struct Block {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RankingParameters {
     pub cost_hour: f32,
-    pub cost_day: f32
+    pub cost_day: f32,
+    pub exit_time_mutiplier: f32
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

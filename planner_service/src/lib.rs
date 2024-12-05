@@ -98,6 +98,7 @@ impl<T: PlannerRepository> PlannerService<T> {
 
             total_ranking += get_week_ranking(&week, ranking_parameters.cost_day);
             total_ranking += get_hour_ranking(&week, ranking_parameters.cost_hour);
+            total_ranking += get_exit_time_ranking(&week, ranking_parameters.exit_time_mutiplier);
 
             RatedWeek {
                 week,
@@ -105,11 +106,7 @@ impl<T: PlannerRepository> PlannerService<T> {
             }
         }).collect();
 
-        info!("ranked weeks is: {:?}", ranked_weeks);
-
         ranked_weeks.sort_unstable_by_key(|ranked_week| (ranked_week.puntuation * 100.) as i32);
-
-        info!("ranked weeks after sort is: {:?}", ranked_weeks);
 
         Ok(ranked_weeks.into_iter().rev().collect())
     }
@@ -164,6 +161,38 @@ impl<T: PlannerRepository> PlannerService<T> {
         Ok(id)
     }
 } 
+
+fn get_exit_time_ranking(week: &Week, exit_time_multiplier: f32) -> f32 {
+    let mut exit_time_ranking = 0.;
+
+    exit_time_ranking += get_exit_time_ranking_day(&week.monday);
+    exit_time_ranking += get_exit_time_ranking_day(&week.tuesday);
+    exit_time_ranking += get_exit_time_ranking_day(&week.wednesday);
+    exit_time_ranking += get_exit_time_ranking_day(&week.thursday);
+    exit_time_ranking += get_exit_time_ranking_day(&week.friday);
+    exit_time_ranking += get_exit_time_ranking_day(&week.saturday);
+
+    exit_time_ranking * exit_time_multiplier * -1.
+}
+
+fn get_exit_time_ranking_day(day: &HashMap<u8, HourInfo>) -> f32 {
+
+    if day.is_empty() {
+        return 0.
+    }
+
+    for time in (0..=24).rev() {
+        if day.contains_key(&time) {
+            return exit_time_function(time)
+        }
+    }
+
+    0.
+}
+
+fn exit_time_function(hour: u8) -> f32 {
+    return ((hour as f32).powf(1.7)) / 200.;
+}
 
 fn get_week_ranking(week: &Week, day_points: f32) -> f32 {
     let mut day_total_points = 0.;
