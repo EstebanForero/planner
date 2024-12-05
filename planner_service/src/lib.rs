@@ -95,7 +95,7 @@ impl<T: PlannerRepository> PlannerService<T> {
             }
         }).collect();
 
-        ranked_weeks.sort_unstable_by_key(|ranked_week| (ranked_week.puntuation * 100.) as u32);
+        ranked_weeks.sort_unstable_by_key(|ranked_week| (ranked_week.puntuation * 100.) as i32);
 
         Ok(ranked_weeks.into_iter().rev().collect())
     }
