@@ -5,7 +5,7 @@ use domain::{Block, BlockInfo, Class, RankingParameters, Schedule};
 use err::PlannerError;
 use general_repository::PlannerRepository;
 use serde::{Deserialize, Serialize};
-use tracing::error;
+use tracing::{error, info};
 
 pub struct PlannerService<T: PlannerRepository> {
     repository: T,
@@ -95,7 +95,11 @@ impl<T: PlannerRepository> PlannerService<T> {
             }
         }).collect();
 
+        info!("ranked weeks is: {:?}", ranked_weeks);
+
         ranked_weeks.sort_unstable_by_key(|ranked_week| (ranked_week.puntuation * 100.) as i32);
+
+        info!("ranked weeks after sort is: {:?}", ranked_weeks);
 
         Ok(ranked_weeks.into_iter().rev().collect())
     }
