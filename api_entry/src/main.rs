@@ -13,7 +13,7 @@ async fn main() {
 
     tracing_subscriber::fmt::init();
 
-    let db_url = env::var("DATABASE_URL").unwrap();
+    let db_url = env::var("PRIVATE_DATABASE_URL").unwrap();
     let pool = PostgresPlannerRepository::generate_pool(&db_url).await;
 
     let cors = tower_http::cors::CorsLayer::permissive();
