@@ -83,7 +83,7 @@ impl<T: PlannerRepository> PlannerService<T> {
 
         generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
 
-        Ok(valid_weeks.into_iter().map(|week| {
+        let mut ranked_weeks: Vec<RatedWeek> = valid_weeks.into_iter().map(|week| {
             let mut total_ranking = 0.;
 
             total_ranking += get_week_ranking(&week, ranking_parameters.cost_day);
@@ -93,7 +93,11 @@ impl<T: PlannerRepository> PlannerService<T> {
                 week,
                 puntuation: total_ranking
             }
-        }).collect())
+        }).collect();
+
+        ranked_weeks.sort_unstable_by_key(|ranked_week| (ranked_week.puntuation * 100.) as u32);
+
+        Ok(ranked_weeks.into_iter().rev().collect())
     }
 
     pub async fn generate_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
