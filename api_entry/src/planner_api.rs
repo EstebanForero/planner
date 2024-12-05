@@ -1,5 +1,5 @@
 use axum::{extract::{Json, Path, State}, http::StatusCode, response::IntoResponse, routing::{delete, get, post}, Router};
-use domain::{CreateBlock, CreateClass, CreateSchedule, DeleteClass};
+use domain::{CreateBlock, CreateClass, CreateSchedule, DeleteClass, RankedParametersEndpoint, RankingParameters};
 use general_repository::postgres_db::PostgresPlannerRepository;
 use planner_service::PlannerService;
 use tracing::error;
@@ -30,6 +30,7 @@ pub fn planner_router(repo: PostgresPlannerRepository) -> Router {
 
         // Planning
         .route("/planning/:user_id", get(generate_plannings))
+        .route("/planningRanked/:user_id", post(ranked_plannings))
 
         // User
         .route("/addUser", post(add_user))
@@ -158,6 +159,21 @@ async fn generate_plannings(State(state): State<AppState>, Path(user_id): Path<i
     let planner_service = PlannerService::new(state.repo);
 
     let planning = planner_service.generate_plannings(user_id).await.map_err(|_| {
+        error!("error in generate_plannings");
+
+        StatusCode::INTERNAL_SERVER_ERROR
+    }).unwrap();
+
+    let planning = serde_json::to_string(&planning).unwrap();
+
+    (StatusCode::OK, [("Content-Type", "application/json")], planning)
+}
+
+// planning
+async fn ranked_plannings(State(state): State<AppState>, Json(ranking_parameters): Json<RankedParametersEndpoint>) -> impl IntoResponse {
+    let planner_service = PlannerService::new(state.repo);
+
+    let planning = planner_service.rank_plannings(ranking_parameters.user_id, ranking_parameters.ranked_parameters).await.map_err(|_| {
         error!("error in generate_plannings");
 
         StatusCode::INTERNAL_SERVER_ERROR

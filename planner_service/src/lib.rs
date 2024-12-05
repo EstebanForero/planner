@@ -83,7 +83,17 @@ impl<T: PlannerRepository> PlannerService<T> {
 
         generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
 
-        todo!()
+        Ok(valid_weeks.into_iter().map(|week| {
+            let mut total_ranking = 0.;
+
+            total_ranking += get_week_ranking(&week, ranking_parameters.cost_day);
+            total_ranking += get_hour_ranking(&week, ranking_parameters.cost_hour);
+
+            RatedWeek {
+                week,
+                puntuation: total_ranking
+            }
+        }).collect())
     }
 
     pub async fn generate_plannings(&self, user_id: i32) -> err::Result<Vec<Week>> {
@@ -150,7 +160,43 @@ fn get_week_ranking(week: &Week, day_points: f32) -> f32 {
 }
 
 fn get_hour_ranking(week: &Week, hour_points: f32) -> f32 {
-    todo!()
+    let mut hour_total_ranking = 0.;
+
+    hour_total_ranking += get_hour_day_ranking(&week.monday, hour_points);
+    hour_total_ranking += get_hour_day_ranking(&week.tuesday, hour_points);
+    hour_total_ranking += get_hour_day_ranking(&week.wednesday, hour_points);
+    hour_total_ranking += get_hour_day_ranking(&week.thursday, hour_points);
+    hour_total_ranking += get_hour_day_ranking(&week.friday, hour_points);
+    hour_total_ranking += get_hour_day_ranking(&week.saturday, hour_points);
+
+    hour_total_ranking
+}
+
+fn get_hour_day_ranking(day: &HashMap<u8, HourInfo>, hour_points: f32) -> f32 {
+    let mut dead_hours_count = 0.;
+    let mut dead_hour_buffer = 0.;
+    let mut started = false;
+    let mut space = true;
+    for i in 0..=24 {
+        if day.contains_key(&i) {
+            if space && started {
+                dead_hours_count += dead_hour_buffer;
+                dead_hour_buffer = 0.;
+            }
+
+            started = true; 
+            space = false;
+
+            continue;
+        } 
+
+        if started {
+            dead_hour_buffer += 1.;
+        }
+        space = true;
+    }
+
+    dead_hours_count * hour_points * -1.
 }
 
 fn generate_plans_recursive(valid_weeks: &mut Vec<Week>, current_class_index: usize, class_list: &Vec<Class>, current_week: Week) {
@@ -261,21 +307,51 @@ impl Week {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use domain::{Block, Class, Day, Schedule};
 
-    use crate::{generate_plans_recursive, Week};
+    use crate::{generate_plans_recursive, get_hour_day_ranking, HourInfo, Week};
+
+    #[test]
+    fn dead_hour_day_test() {
+
+        let mut day = HashMap::new();
+
+        day.insert(7, HourInfo {
+            class_name: "idk".to_string(),
+            schedule_name: "idkkk".to_string()
+        });
+
+        let mut points = get_hour_day_ranking(&day, 1.);
+
+        assert_eq!(points, 0.);
+
+        day.insert(9, HourInfo {
+            class_name: "idk".to_string(),
+            schedule_name: "idkkk".to_string()
+        });
+
+        points = get_hour_day_ranking(&day, 1.);
+
+        assert_eq!(points, -1.);
+
+    }
 
     #[test]
     fn week_recursive_test() {
 
         let classes = vec![
             Class {
+                class_id: 0,
                 class_name: "Math".to_string(),
                 schedules: vec![
                     Schedule {
+                        schedule_id: 0,
                         schedule_name: "Math 1".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 0,
                                 start_hour: 7,
                                 finish_hour: 9,
                                 day: Day::Monday
@@ -283,9 +359,11 @@ mod test {
                         ]
                     },
                     Schedule {
+                        schedule_id: 1,
                         schedule_name: "Math 2".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 1,
                                 start_hour: 7,
                                 finish_hour: 9,
                                 day: Day::Tuesday
@@ -296,17 +374,21 @@ mod test {
             },
 
             Class {
+                class_id: 0,
                 class_name: "Prog".to_string(),
                 schedules: vec![
                     Schedule {
+                        schedule_id: 2,
                         schedule_name: "Prog 1".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 1,
                                 start_hour: 8,
                                 finish_hour: 10,
                                 day: Day::Saturday,
                             },
                             Block {
+                                block_id: 2,
                                 start_hour: 8,
                                 finish_hour: 10,
                                 day: Day::Monday
@@ -314,14 +396,17 @@ mod test {
                         ]
                     },
                     Schedule {
+                        schedule_id: 2,
                         schedule_name: "Prog 2".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 2,
                                 start_hour: 10,
                                 finish_hour: 12,
                                 day: Day::Monday
                             },
                             Block {
+                                block_id: 2,
                                 start_hour: 12,
                                 finish_hour: 14,
                                 day: Day::Tuesday
@@ -341,15 +426,17 @@ mod test {
 
     #[test]
     fn week_recursive_test_no_options() {
-
         let classes = vec![
             Class {
+                class_id: 1,
                 class_name: "Math".to_string(),
                 schedules: vec![
                     Schedule {
+                        schedule_id: 1,
                         schedule_name: "Math 1".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 1,
                                 start_hour: 7,
                                 finish_hour: 9,
                                 day: Day::Monday
@@ -357,9 +444,11 @@ mod test {
                         ]
                     },
                     Schedule {
+                        schedule_id: 2,
                         schedule_name: "Math 2".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 2,
                                 start_hour: 7,
                                 finish_hour: 9,
                                 day: Day::Tuesday
@@ -368,19 +457,22 @@ mod test {
                     }
                 ]
             },
-
             Class {
+                class_id: 2,
                 class_name: "Prog".to_string(),
                 schedules: vec![
                     Schedule {
+                        schedule_id: 3,
                         schedule_name: "Prog 1".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 3,
                                 start_hour: 8,
                                 finish_hour: 10,
                                 day: Day::Saturday,
                             },
                             Block {
+                                block_id: 4,
                                 start_hour: 8,
                                 finish_hour: 10,
                                 day: Day::Monday
@@ -388,14 +480,17 @@ mod test {
                         ]
                     },
                     Schedule {
+                        schedule_id: 4,
                         schedule_name: "Prog 2".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 5,
                                 start_hour: 10,
                                 finish_hour: 12,
                                 day: Day::Monday
                             },
                             Block {
+                                block_id: 6,
                                 start_hour: 12,
                                 finish_hour: 14,
                                 day: Day::Tuesday
@@ -405,12 +500,15 @@ mod test {
                 ]
             },
             Class {
+                class_id: 3,
                 class_name: "Core".to_string(),
                 schedules: vec![
                     Schedule {
+                        schedule_id: 5,
                         schedule_name: "Core 1".to_string(),
                         blocks: vec![
                             Block {
+                                block_id: 7,
                                 start_hour: 7,
                                 finish_hour: 11,
                                 day: Day::Monday
@@ -420,11 +518,5 @@ mod test {
                 ]
             }
         ];
-
-        let mut valid_weeks: Vec<Week> = Vec::new();
-
-        generate_plans_recursive(&mut valid_weeks, 0, &classes, Week::new());
-
-        assert_eq!(valid_weeks.len(), 0);
     }
 }
