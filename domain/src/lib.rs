@@ -56,7 +56,7 @@ pub struct Block {
 pub struct RankingParameters {
     pub cost_hour: f32,
     pub cost_day: f32,
-    pub exit_time_mutiplier: f32
+    pub exit_time_multiplier: f32
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
