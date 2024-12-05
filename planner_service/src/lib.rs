@@ -98,7 +98,7 @@ impl<T: PlannerRepository> PlannerService<T> {
 
             total_ranking += get_week_ranking(&week, ranking_parameters.cost_day);
             total_ranking += get_hour_ranking(&week, ranking_parameters.cost_hour);
-            total_ranking += get_exit_time_ranking(&week, ranking_parameters.exit_time_mutiplier);
+            total_ranking += get_exit_time_ranking(&week, ranking_parameters.exit_time_multiplier);
 
             RatedWeek {
                 week,
