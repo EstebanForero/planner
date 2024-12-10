@@ -6,7 +6,6 @@ use planner_api::planner_router;
 mod planner_api;
 
 // Some change in the comments
-
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
