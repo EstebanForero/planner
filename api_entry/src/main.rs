@@ -5,6 +5,8 @@ use general_repository::postgres_db::PostgresPlannerRepository;
 use planner_api::planner_router;
 mod planner_api;
 
+// comment
+
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
