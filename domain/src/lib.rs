@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-// This is the domain
+// This is the domain in the main branch
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum Day {
