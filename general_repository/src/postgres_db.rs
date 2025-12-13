@@ -1,8 +1,10 @@
-use sqlx::PgPool;
+use sqlx::{PgPool, migrate::Migrator};
 use domain::{Block, BlockInfo, Day};
 
 use super::{Schedule, Class};
-use crate::{err::{self, RepositoryError, Result}, PlannerRepository};
+use crate::{err::{self, Result}, PlannerRepository};
+
+static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
 #[derive(Clone)]
 pub struct PostgresPlannerRepository {
@@ -15,14 +17,16 @@ impl PostgresPlannerRepository {
     }
 
     pub async fn generate_pool(db_url: &str) -> Self {
-        match PgPool::connect(db_url).await {
-            Ok(pool) => {
-                PostgresPlannerRepository { pool }
-            },
-            Err(_) => {
-                panic!("Could not connect to database. Please ensure the database exists.");
-            }
-        }
+        let pool = PgPool::connect(db_url)
+            .await
+            .unwrap_or_else(|_| panic!("Could not connect to database. Please ensure the database exists."));
+
+        MIGRATOR
+            .run(&pool)
+            .await
+            .unwrap_or_else(|_| panic!("Database migrations failed to run"));
+
+        PostgresPlannerRepository { pool }
     }
 }
 
@@ -40,7 +44,7 @@ impl PlannerRepository for PostgresPlannerRepository {
     }
 
     async fn delete_class(&self, user_id: i32, class_id: i32) -> Result<()> {
-        let result = sqlx::query!(
+        sqlx::query!(
             "DELETE FROM classes WHERE class_id = $1 AND user_id = $2",
             class_id,
             user_id
@@ -103,7 +107,7 @@ impl PlannerRepository for PostgresPlannerRepository {
     }
 
     async fn delete_schedule(&self, schedule_id: i32) -> Result<()> {
-        let result = sqlx::query!(
+        sqlx::query!(
             "DELETE FROM schedule WHERE schedule_id = $1",
             schedule_id
         )
@@ -150,7 +154,7 @@ impl PlannerRepository for PostgresPlannerRepository {
     }
 
     async fn delete_block(&self, block_id: i32) -> Result<()> {
-        let result = sqlx::query!(
+        sqlx::query!(
             "DELETE FROM block WHERE block_id = $1",
             block_id
         )
