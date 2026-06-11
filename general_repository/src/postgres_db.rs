@@ -1,5 +1,5 @@
 use sqlx::{PgPool, migrate::Migrator};
-use domain::{Block, BlockInfo, Day};
+use domain::{Block, BlockInfo, Course, CourseSummary, Day};
 
 use super::{Schedule, Class};
 use crate::{err::{self, Result}, PlannerRepository};
@@ -31,14 +31,90 @@ impl PostgresPlannerRepository {
 }
 
 impl PlannerRepository for PostgresPlannerRepository {
-    async fn add_class(&self, user_id: i32, class_name: String) -> Result<()> {
+    async fn add_class(&self, user_id: i32, class_name: String, course_id: i32) -> Result<()> {
         sqlx::query!(
-            "INSERT INTO classes (class_name, user_id) VALUES ($1, $2)",
+            "INSERT INTO classes (class_name, user_id, course_id) VALUES ($1, $2, $3)",
             class_name,
+            user_id,
+            course_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    async fn add_course(&self, course_name: String) -> Result<i32> {
+        let row = sqlx::query!(
+            "INSERT INTO course (course_name) VALUES ($1) RETURNING course_id",
+            course_name
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(row.course_id)
+    }
+
+    async fn search_courses(&self, query: String) -> Result<Vec<CourseSummary>> {
+        let pattern = format!("%{}%", query);
+
+        let rows = sqlx::query!(
+            r#"SELECT course_id, course_name,
+                (SELECT COUNT(*) FROM classes WHERE classes.course_id = course.course_id) as "class_count!: i64"
+               FROM course WHERE course_name ILIKE $1 ORDER BY course_name LIMIT 20"#,
+            pattern
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let courses = rows.into_iter().map(|row| CourseSummary {
+            course_id: row.course_id,
+            course_name: row.course_name,
+            class_count: row.class_count,
+        }).collect();
+
+        Ok(courses)
+    }
+
+    async fn get_course(&self, course_id: i32) -> Result<Course> {
+        let row = sqlx::query!(
+            r#"SELECT course_id, course_name,
+                (SELECT COUNT(*) FROM classes WHERE classes.course_id = course.course_id) as "class_count!: i64"
+               FROM course WHERE course_id = $1"#,
+            course_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        let schedules = self.get_schedules(course_id).await?;
+
+        Ok(Course {
+            course_id: row.course_id,
+            course_name: row.course_name,
+            schedules,
+            class_count: row.class_count,
+        })
+    }
+
+    async fn set_class_course(&self, user_id: i32, class_id: i32, course_id: i32) -> Result<()> {
+        sqlx::query!(
+            "UPDATE classes SET course_id = $1 WHERE class_id = $2 AND user_id = $3",
+            course_id,
+            class_id,
             user_id
         )
         .execute(&self.pool)
         .await?;
+
+        Ok(())
+    }
+
+    async fn delete_all_classes(&self) -> Result<()> {
+        // Deleting every course cascades to classes, schedules and blocks
+        // (all chained with ON DELETE CASCADE), leaving user accounts intact.
+        sqlx::query!("DELETE FROM course")
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }
@@ -57,25 +133,26 @@ impl PlannerRepository for PostgresPlannerRepository {
 
     async fn get_class(&self, user_id: i32, class_id: i32) -> Result<Class> {
         let class_row = sqlx::query!(
-            "SELECT class_name, class_id FROM classes WHERE class_id = $1 AND user_id = $2",
+            "SELECT class_name, class_id, course_id FROM classes WHERE class_id = $1 AND user_id = $2",
             class_id,
             user_id
         )
         .fetch_one(&self.pool)
         .await?;
 
-        let schedules = self.get_schedules(class_id).await?;
+        let schedules = self.get_schedules(class_row.course_id).await?;
 
         Ok(Class {
             class_name: class_row.class_name,
             schedules,
-            class_id: class_row.class_id
+            class_id: class_row.class_id,
+            course_id: class_row.course_id
         })
     }
 
     async fn get_classes(&self, user_id: i32) -> Result<Vec<Class>> {
         let class_rows = sqlx::query!(
-            "SELECT class_id, class_name FROM classes WHERE user_id = $1",
+            "SELECT class_id, class_name, course_id FROM classes WHERE user_id = $1",
             user_id
         )
         .fetch_all(&self.pool)
@@ -83,21 +160,22 @@ impl PlannerRepository for PostgresPlannerRepository {
 
         let mut classes = Vec::new();
         for class_row in class_rows {
-            let schedules = self.get_schedules(class_row.class_id).await?;
+            let schedules = self.get_schedules(class_row.course_id).await?;
             classes.push(Class {
                 class_name: class_row.class_name,
                 schedules,
-                class_id: class_row.class_id
+                class_id: class_row.class_id,
+                course_id: class_row.course_id
             });
         }
 
         Ok(classes)
     }
 
-    async fn add_schedule(&self, class_id: i32, schedule_name: String) -> Result<()> {
+    async fn add_schedule(&self, course_id: i32, schedule_name: String) -> Result<()> {
         sqlx::query!(
-            "INSERT INTO schedule (class_id, schedule_name) VALUES ($1, $2)",
-            class_id,
+            "INSERT INTO schedule (course_id, schedule_name) VALUES ($1, $2)",
+            course_id,
             schedule_name
         )
         .execute(&self.pool)
@@ -117,10 +195,10 @@ impl PlannerRepository for PostgresPlannerRepository {
         Ok(())
     }
 
-    async fn get_schedules(&self, class_id: i32) -> Result<Vec<Schedule>> {
+    async fn get_schedules(&self, course_id: i32) -> Result<Vec<Schedule>> {
         let schedule_rows = sqlx::query!(
-            "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = $1",
-            class_id
+            "SELECT schedule_id, schedule_name FROM schedule WHERE course_id = $1",
+            course_id
         )
         .fetch_all(&self.pool)
         .await?;

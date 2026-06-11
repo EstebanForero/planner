@@ -50,6 +50,7 @@ dependencies = [
  "dotenvy",
  "general_repository",
  "planner_service",
+ "serde",
  "serde_json",
  "tokio",
  "tower-http",

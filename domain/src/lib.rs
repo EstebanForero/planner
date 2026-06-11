@@ -48,6 +48,18 @@ pub struct RankedParametersEndpoint {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct UserRankingInput {
+    pub user_id: i32,
+    pub ranking_parameters: RankingParameters,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct GroupPlanningRequest {
+    pub users: Vec<UserRankingInput>,
+    pub match_weight: f32,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Block {
     pub start_hour: u8,
     pub finish_hour: u8,
@@ -86,23 +98,60 @@ pub struct Schedule {
 pub struct Class {
     pub class_id: i32,
     pub class_name: String,
+    pub course_id: i32,
     pub schedules: Vec<Schedule>
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CreateSchedule {
-    pub class_id: i32,
+    pub course_id: i32,
     pub schedule_name: String
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CreateClass {
     pub user_id: i32,
-    pub class_name: String
+    pub class_name: String,
+    /// `None` creates a brand new (shared) course named `class_name`.
+    /// `Some(course_id)` links this class to an existing shared course.
+    #[serde(default)]
+    pub course_id: Option<i32>
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Course {
+    pub course_id: i32,
+    pub course_name: String,
+    pub schedules: Vec<Schedule>,
+    /// How many classes (across all users) currently link to this course.
+    pub class_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CourseSummary {
+    pub course_id: i32,
+    pub course_name: String,
+    /// How many classes (across all users) currently link to this course.
+    pub class_count: i64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeleteClass {
     pub user_id: i32,
     pub class_id: i32
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DeleteAllClasses {
+    pub user_id: i32,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct RelinkClass {
+    pub user_id: i32,
+    pub class_id: i32,
+    /// `Some(course_id)` joins this class to an existing shared course.
+    /// `None` detaches it into a brand new (personal) course of the same name.
+    #[serde(default)]
+    pub course_id: Option<i32>,
 }

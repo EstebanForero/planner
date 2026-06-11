@@ -35,4 +35,19 @@ pub enum PlannerError {
 
     #[error("add user error")]
     AddUserError,
+
+    #[error("add course error")]
+    AddCourseError,
+
+    #[error("search courses error")]
+    SearchCoursesError,
+
+    #[error("get course error")]
+    GetCourseError,
+
+    #[error("relink class error")]
+    RelinkClassError,
+
+    #[error("delete all classes error")]
+    DeleteAllClassesError,
 }
