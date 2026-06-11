@@ -1,29 +1,34 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT class_name, class_id FROM classes WHERE class_id = $1 AND user_id = $2",
+  "query": "SELECT class_id, class_name, course_id FROM classes WHERE user_id = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
+        "name": "class_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
         "name": "class_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 1,
-        "name": "class_id",
+        "ordinal": 2,
+        "name": "course_id",
         "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": [
-        "Int4",
         "Int4"
       ]
     },
     "nullable": [
       false,
+      false,
       false
     ]
   },
-  "hash": "8fb9181ebb72a29e0bbc0dc0e495def83c3b84c9dccb2a624c2efcf3c5510ab7"
+  "hash": "1e6e7e21e9a1c013b1c670abc979e1ad7be9b57bf9e0ab9cc44d4e3113eb433a"
 }

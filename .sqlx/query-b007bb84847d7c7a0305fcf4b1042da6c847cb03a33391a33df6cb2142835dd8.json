@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT course_id, course_name,\n                (SELECT COUNT(*) FROM classes WHERE classes.course_id = course.course_id) as \"class_count!: i64\"\n               FROM course WHERE course_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "class_count!: i64",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "b007bb84847d7c7a0305fcf4b1042da6c847cb03a33391a33df6cb2142835dd8"
+}

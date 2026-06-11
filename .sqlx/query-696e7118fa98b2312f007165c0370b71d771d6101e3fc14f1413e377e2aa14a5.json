@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT schedule_id, schedule_name FROM schedule WHERE class_id = $1",
+  "query": "SELECT schedule_id, schedule_name FROM schedule WHERE course_id = $1",
   "describe": {
     "columns": [
       {
@@ -24,5 +24,5 @@
       false
     ]
   },
-  "hash": "55d0de968d0873fef7496783544b82f2904b1f3068613af56b5346198a28a9f7"
+  "hash": "696e7118fa98b2312f007165c0370b71d771d6101e3fc14f1413e377e2aa14a5"
 }

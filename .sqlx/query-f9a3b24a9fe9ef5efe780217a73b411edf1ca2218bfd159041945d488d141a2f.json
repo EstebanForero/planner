@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO schedule (class_id, schedule_name) VALUES ($1, $2)",
+  "query": "INSERT INTO schedule (course_id, schedule_name) VALUES ($1, $2)",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "3e758996fc7e2169946a06395d38ae6bec1aa1b363b266a51fc6716d422be55a"
+  "hash": "f9a3b24a9fe9ef5efe780217a73b411edf1ca2218bfd159041945d488d141a2f"
 }

@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT course_id, course_name,\n                (SELECT COUNT(*) FROM classes WHERE classes.course_id = course.course_id) as \"class_count!: i64\"\n               FROM course WHERE course_name ILIKE $1 ORDER BY course_name LIMIT 20",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "class_count!: i64",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "a3d4dbbd0a5ebe3b9db97d05b8df74dc18f6d0c81a468abb7f0e2551726cd05a"
+}
